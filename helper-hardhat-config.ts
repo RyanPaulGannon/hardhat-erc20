@@ -16,5 +16,5 @@ export const networkConfig: networkConfigInfo = {
     },
 }
 
-export const INITIAL_SUPPLY = "1000000000000000000000"
+export const INITIAL_SUPPLY = "10000000000000000000000"
 export const developmentChains = ["hardhat", "localhost"]

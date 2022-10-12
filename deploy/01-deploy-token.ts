@@ -8,16 +8,17 @@ const deployToken: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId: number = network.config.chainId!
-    const GanCoin = await deploy("GanCoin", {
+    const args = [INITIAL_SUPPLY, "GanCoin", "GAN"]
+    const ganCoin = await deploy("GanCoin", {
         from: deployer,
-        args: [INITIAL_SUPPLY],
+        args: args,
         log: true,
         waitConfirmations: networkConfig[network.name].blockConfirmations || 1,
     })
-    log(`GanCoin deployed at ${GanCoin.address}`)
+    log(`GanCoin deployed at ${ganCoin.address}`)
 
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-        await verify(GanCoin.address, [INITIAL_SUPPLY])
+        await verify(ganCoin.address, [INITIAL_SUPPLY])
     }
 }
 
