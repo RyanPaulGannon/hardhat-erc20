@@ -27,11 +27,11 @@ contract GanCoin {
     event Approval(
         address indexed _owner,
         address indexed _spender,
-        uint256 value
+        uint256 _value
     );
 
     // Notifies the clients of the amount burnt
-    event Burn(address from, uint256 value);
+    event Burn(address indexed from, uint256 value);
 
     /**
      * Constructor Function

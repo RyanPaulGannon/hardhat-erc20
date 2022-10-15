@@ -1,22 +1,22 @@
 import { BigNumber } from "ethers"
 import { assert, expect } from "chai"
-import { GanCoin } from "../../typechain-types"
+import { EasyGanCoin } from "../../typechain-types"
 import { deployments, ethers, network } from "hardhat"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { developmentChains, INITIAL_SUPPLY } from "../../helper-hardhat-config"
 
 !developmentChains.includes(network.name)
     ? describe.skip
-    : describe("GanCoin Unit Test", () => {
+    : describe("EasyGanCoin Unit Test", () => {
           const multiplier = 10 ** 18
-          let ganCoin: GanCoin, deployer: SignerWithAddress, user1: SignerWithAddress
+          let ganCoin: EasyGanCoin, deployer: SignerWithAddress, user1: SignerWithAddress
           beforeEach(async () => {
               const accounts = await ethers.getSigners()
               deployer = accounts[0]
               user1 = accounts[1]
 
-              await deployments.fixture("all")
-              ganCoin = await ethers.getContract("GanCoin", deployer)
+              await deployments.fixture("easy")
+              ganCoin = await ethers.getContract("EasyGanCoin", deployer)
           })
           it("Gets deployed correctly", async () => {
               assert(ganCoin.address)
@@ -28,9 +28,9 @@ import { developmentChains, INITIAL_SUPPLY } from "../../helper-hardhat-config"
               })
               it("Initialises with correct name and symbol", async () => {
                   const tokenName = (await ganCoin.name()).toString()
-                  assert.equal(tokenName, "GanCoin")
+                  assert.equal(tokenName, "EGanCoin")
                   const symbol = (await ganCoin.symbol()).toString()
-                  assert.equal(symbol, "GAN")
+                  assert.equal(symbol, "EGAN")
               })
           })
           describe("Transfers", () => {
@@ -43,18 +43,13 @@ import { developmentChains, INITIAL_SUPPLY } from "../../helper-hardhat-config"
                   expect(await ganCoin.transfer(user1.address, (10 * multiplier).toString())).to.emit(ganCoin, "Transfer")
               })
           })
-          //   describe("Allowances", () => {
-          //       const amount = (10 * multiplier).toString()
-          //       beforeEach(async () => {
-          //           const playerToken = await ethers.getContract("GanCoin", user1)
-          //       })
-          //       it("Should approve an other address to spend the token", async () => {
-          //           const tokensToSpend = ethers.utils.parseEther("5")
-          //           await ganCoin.approve(user1, tokensToSpend)
-          //           const ganCoin1 = await ethers.getContract("GanCoin", user1)
-          //           await ganCoin1.transferFrom(deployer, user1, tokensToSpend)
-          //           console.log(tokensToSpend)
-          //           expect(await ganCoin1.balanceOf(user1).to.equal(tokensToSpend))
-          //       })
-          //   })
+          describe("Allowances", () => {
+              it("Should approve other address to spend token", async () => {
+                  const tokensToSpend = ethers.utils.parseEther("5")
+                  await ganCoin.approve(user1.address, tokensToSpend)
+                  const ganCoin1 = await ethers.getContract("EasyGanCoin", user1)
+                  await ganCoin1.transferFrom(deployer.address, user1.address, tokensToSpend)
+                  expect(await ganCoin1.balanceOf(user1.address)).to.equal(tokensToSpend)
+              })
+          })
       })
