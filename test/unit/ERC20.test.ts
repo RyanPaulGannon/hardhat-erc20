@@ -43,18 +43,26 @@ import { developmentChains, INITIAL_SUPPLY } from "../../helper-hardhat-config"
                   expect(await ganCoin.transfer(user1.address, (10 * multiplier).toString())).to.emit(ganCoin, "Transfer")
               })
           })
-          //   describe("Allowances", () => {
-          //       const amount = (10 * multiplier).toString()
-          //       beforeEach(async () => {
-          //           const playerToken = await ethers.getContract("GanCoin", user1)
-          //       })
-          //       it("Should approve an other address to spend the token", async () => {
-          //           const tokensToSpend = ethers.utils.parseEther("5")
-          //           await ganCoin.approve(user1, tokensToSpend)
-          //           const ganCoin1 = await ethers.getContract("GanCoin", user1)
-          //           await ganCoin1.transferFrom(deployer, user1, tokensToSpend)
-          //           console.log(tokensToSpend)
-          //           expect(await ganCoin1.balanceOf(user1).to.equal(tokensToSpend))
-          //       })
-          //   })
+          describe("Allowances", () => {
+              const amount = (20 * multiplier).toString()
+              it("Should approve an other address to spend the token", async () => {
+                  const tokensToSpend = ethers.utils.parseEther("5")
+                  await ganCoin.approve(user1.address, tokensToSpend)
+                  const ganCoin1 = await ethers.getContract("GanCoin", user1)
+                  await ganCoin1.transferFrom(deployer.address, user1.address, tokensToSpend)
+                  expect(await ganCoin1.balanceOf(user1.address).to.equal(tokensToSpend))
+              })
+              it("Doesn't allow an unapproved member to make transfers", async () => {
+                  const playerToken = await ethers.getContract("GanCoin", user1)
+                  await expect(playerToken.transferFrom(deployer, user1, amount)).to.be.revertedWith("ERC20: Insufficient Allowance")
+              })
+              it("Emits an approval event, when an approval occurs", async () => {
+                  await expect(ganCoin.approve(user1.address, amount)).to.emit(ganCoin, "Approval")
+              })
+              it("The allowance being set is secure", async () => {
+                  await ganCoin.approve(user1.address, amount)
+                  const allowance = await ganCoin.allowance(deployer.address, user1.address)
+                  assert.equal(allowance.toString(), amount)
+              })
+          })
       })
